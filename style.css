@@ -283,6 +283,47 @@ input[type="range"] {
 }
 
 /* =======================
+   Category performance
+======================= */
+
+.performance-item {
+  margin-bottom: 14px;
+}
+
+.performance-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.performance-bar {
+  height: 10px;
+  border-radius: 6px;
+  background: #1b1e24;
+  overflow: hidden;
+}
+
+.performance-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+.performance-fill.pass {
+  background: var(--correct);
+}
+
+.performance-fill.borderline {
+  background: #facc15; /* amber */
+}
+
+.performance-fill.fail {
+  background: var(--wrong);
+}
+
+
+/* =======================
    Misc
 ======================= */
 

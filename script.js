@@ -7,6 +7,9 @@ let quizQuestions = [];
 let currentIndex = 0;
 let score = 0;
 
+let categoryStats =
+  JSON.parse(localStorage.getItem("categoryStats")) || {};
+
 // =======================
 // DOM elements
 // =======================
@@ -33,6 +36,8 @@ const categoryMaxLabel = document.getElementById("categoryMax");
 const questionCountSelect = document.getElementById("questionCount");
 const startExamBtn = document.getElementById("startExam");
 const startCategoryBtn = document.getElementById("startCategory");
+
+const performanceList = document.getElementById("performanceList");
 
 // =======================
 // Initial UI state
@@ -61,6 +66,8 @@ fetch("./questions.json")
       opt.textContent = cat;
       categorySelect.appendChild(opt);
     });
+
+    renderPerformance();
   })
   .catch(() => {
     alert("Failed to load questions.json");
@@ -171,11 +178,25 @@ function selectAnswer(button, index) {
     if (idx === q.correctIndex) btn.classList.add("correct");
   });
 
+  const cat = q.category;
+
+  if (!categoryStats[cat]) {
+    categoryStats[cat] = { attempts: 0, correct: 0 };
+  }
+
+  categoryStats[cat].attempts++;
+
   if (index === q.correctIndex) {
+    categoryStats[cat].correct++;
     score++;
   } else {
     button.classList.add("incorrect");
   }
+
+  localStorage.setItem(
+    "categoryStats",
+    JSON.stringify(categoryStats)
+  );
 
   nextBtn.classList.remove("hidden");
 }
@@ -190,7 +211,56 @@ function finishQuiz() {
   quiz.classList.add("hidden");
   scoreScreen.classList.remove("hidden");
 
-  finalScore.textContent = `You scored ${score} out of ${quizQuestions.length}`;
+  finalScore.textContent =
+    `You scored ${score} out of ${quizQuestions.length}`;
+
+  renderPerformance();
+}
+
+// =======================
+// Category performance
+// =======================
+
+function renderPerformance() {
+  if (!performanceList) return;
+
+  performanceList.innerHTML = "";
+
+  const entries = Object.entries(categoryStats);
+
+  if (entries.length === 0) {
+    performanceList.innerHTML =
+      `<p class="muted">No data yet. Complete a quiz to see performance.</p>`;
+    return;
+  }
+
+  entries
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .forEach(([category, stats]) => {
+      const percent = Math.round(
+        (stats.correct / stats.attempts) * 100
+      );
+
+      let status = "fail";
+      if (percent >= 80) status = "pass";
+      else if (percent >= 60) status = "borderline";
+
+      const item = document.createElement("div");
+      item.className = "performance-item";
+
+      item.innerHTML = `
+        <div class="performance-header">
+          <span>${category}</span>
+          <span>${percent}% (${stats.correct}/${stats.attempts})</span>
+        </div>
+        <div class="performance-bar">
+          <div class="performance-fill ${status}"
+               style="width: ${percent}%"></div>
+        </div>
+      `;
+
+      performanceList.appendChild(item);
+    });
 }
 
 // =======================
@@ -208,6 +278,8 @@ function resetApp() {
 
   homeBtn.classList.add("hidden");
   progressFill.style.width = "0%";
+
+  renderPerformance();
 }
 
 homeBtn.addEventListener("click", resetApp);
