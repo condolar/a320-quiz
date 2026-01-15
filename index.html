@@ -10,15 +10,16 @@
 
 <div class="app">
 
+  <!-- HEADER -->
   <header>
-  <h1>A320 Technical Questions</h1>
-  <div>
-    <button id="homeBtn" class="ghost hidden">Home</button>
-  </div>
-</header>
+    <h1>A320 Technical Questions</h1>
+    <div>
+      <button id="performanceBtn" class="ghost">Performance</button>
+      <button id="homeBtn" class="ghost hidden">Home</button>
+    </div>
+  </header>
 
-
-  <!-- HOME -->
+  <!-- HOME / START SCREEN -->
   <div id="startScreen" class="card">
 
     <div class="mode">
@@ -64,33 +65,45 @@
 
     <hr />
 
-<h3>📊 Category Performance</h3>
-<p class="muted">Based on all completed questions</p>
-
-<div id="performanceList"></div>
-
-
-</div>
-
-  <!-- QUIZ -->
-   
-
-  <div id="quiz" class="card hidden">
-    <div class="progress-bar">
-    <div id="progressFill"></div>
+    <div class="mode">
+      <h3>🔁 Retry Failed Questions</h3>
+      <p class="muted">
+        Practice only the questions you previously answered incorrectly
+      </p>
+      <button id="retryFailed">Start Retry Quiz</button>
     </div>
+
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz" class="card hidden">
+
+    <div class="progress-bar">
+      <div id="progressFill"></div>
+    </div>
+
     <div id="progress"></div>
     <div id="categoryLabel"></div>
+
     <h2 id="questionText"></h2>
+
     <div id="options"></div>
+
     <button id="nextBtn" class="hidden">Next</button>
   </div>
 
-
+  <!-- SCORE SCREEN -->
   <div id="scoreScreen" class="card hidden">
     <h2>Quiz Complete</h2>
     <p id="finalScore"></p>
     <button onclick="resetApp()">Back to Home</button>
+  </div>
+
+  <!-- PERFORMANCE SCREEN -->
+  <div id="performanceScreen" class="card hidden">
+    <h2>📊 Category Performance</h2>
+    <p class="muted">Based on all completed questions</p>
+    <div id="performanceList"></div>
   </div>
 
 </div>

@@ -10,6 +10,9 @@ let score = 0;
 let categoryStats =
   JSON.parse(localStorage.getItem("categoryStats")) || {};
 
+let failedQuestions =
+  JSON.parse(localStorage.getItem("failedQuestions")) || [];
+
 // =======================
 // DOM elements
 // =======================
@@ -17,8 +20,10 @@ let categoryStats =
 const startScreen = document.getElementById("startScreen");
 const quiz = document.getElementById("quiz");
 const scoreScreen = document.getElementById("scoreScreen");
+const performanceScreen = document.getElementById("performanceScreen");
 
 const homeBtn = document.getElementById("homeBtn");
+const performanceBtn = document.getElementById("performanceBtn");
 
 const questionText = document.getElementById("questionText");
 const optionsDiv = document.getElementById("options");
@@ -36,6 +41,7 @@ const categoryMaxLabel = document.getElementById("categoryMax");
 const questionCountSelect = document.getElementById("questionCount");
 const startExamBtn = document.getElementById("startExam");
 const startCategoryBtn = document.getElementById("startCategory");
+const retryFailedBtn = document.getElementById("retryFailed");
 
 const performanceList = document.getElementById("performanceList");
 
@@ -45,6 +51,7 @@ const performanceList = document.getElementById("performanceList");
 
 startExamBtn.disabled = true;
 startCategoryBtn.disabled = true;
+retryFailedBtn.disabled = failedQuestions.length === 0;
 
 // =======================
 // Load questions
@@ -66,8 +73,6 @@ fetch("./questions.json")
       opt.textContent = cat;
       categorySelect.appendChild(opt);
     });
-
-    renderPerformance();
   })
   .catch(() => {
     alert("Failed to load questions.json");
@@ -86,6 +91,17 @@ startExamBtn.addEventListener("click", () => {
       ? shuffled
       : shuffled.slice(0, parseInt(countValue, 10));
 
+  startQuiz();
+});
+
+// =======================
+// Retry failed questions
+// =======================
+
+retryFailedBtn.addEventListener("click", () => {
+  if (failedQuestions.length === 0) return;
+
+  quizQuestions = [...failedQuestions].sort(() => Math.random() - 0.5);
   startQuiz();
 });
 
@@ -139,8 +155,9 @@ function startQuiz() {
   score = 0;
 
   startScreen.classList.add("hidden");
-  quiz.classList.remove("hidden");
+  performanceScreen.classList.add("hidden");
   scoreScreen.classList.add("hidden");
+  quiz.classList.remove("hidden");
 
   homeBtn.classList.remove("hidden");
 
@@ -159,7 +176,8 @@ function showQuestion() {
 
   questionText.textContent = q.question;
   categoryLabel.textContent = q.category;
-  progress.textContent = `Question ${currentIndex + 1} of ${quizQuestions.length}`;
+  progress.textContent =
+    `Question ${currentIndex + 1} of ${quizQuestions.length}`;
 
   q.options.forEach((opt, idx) => {
     const btn = document.createElement("button");
@@ -189,8 +207,18 @@ function selectAnswer(button, index) {
   if (index === q.correctIndex) {
     categoryStats[cat].correct++;
     score++;
+
+    // Remove from failed list
+    failedQuestions = failedQuestions.filter(
+      fq => fq.question !== q.question
+    );
   } else {
     button.classList.add("incorrect");
+
+    // Add to failed list if not already there
+    if (!failedQuestions.find(fq => fq.question === q.question)) {
+      failedQuestions.push(q);
+    }
   }
 
   localStorage.setItem(
@@ -198,7 +226,16 @@ function selectAnswer(button, index) {
     JSON.stringify(categoryStats)
   );
 
-  nextBtn.classList.remove("hidden");
+  localStorage.setItem(
+    "failedQuestions",
+    JSON.stringify(failedQuestions)
+  );
+
+  retryFailedBtn.disabled = failedQuestions.length === 0;
+
+  setTimeout(() => {
+    nextBtn.classList.remove("hidden");
+  }, 600);
 }
 
 nextBtn.addEventListener("click", () => {
@@ -213,17 +250,24 @@ function finishQuiz() {
 
   finalScore.textContent =
     `You scored ${score} out of ${quizQuestions.length}`;
-
-  renderPerformance();
 }
 
 // =======================
-// Category performance
+// Performance screen
 // =======================
 
-function renderPerformance() {
-  if (!performanceList) return;
+performanceBtn.addEventListener("click", () => {
+  startScreen.classList.add("hidden");
+  quiz.classList.add("hidden");
+  scoreScreen.classList.add("hidden");
 
+  performanceScreen.classList.remove("hidden");
+  homeBtn.classList.remove("hidden");
+
+  renderPerformance();
+});
+
+function renderPerformance() {
   performanceList.innerHTML = "";
 
   const entries = Object.entries(categoryStats);
@@ -274,12 +318,13 @@ function resetApp() {
 
   quiz.classList.add("hidden");
   scoreScreen.classList.add("hidden");
+  performanceScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
 
   homeBtn.classList.add("hidden");
   progressFill.style.width = "0%";
 
-  renderPerformance();
+  retryFailedBtn.disabled = failedQuestions.length === 0;
 }
 
 homeBtn.addEventListener("click", resetApp);
