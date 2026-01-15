@@ -34,11 +34,36 @@ header {
   margin-bottom: 16px;
 }
 
+/* =======================
+   Card – premium depth
+======================= */
+
 .card {
-  background: var(--card);
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.04),
+    rgba(255,255,255,0.01)
+  ), var(--card);
+
+  border-radius: 18px;
+  padding: 24px;
+
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+
+  animation: fadeUp 0.35s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mode {
@@ -55,30 +80,76 @@ label {
   margin-top: 8px;
 }
 
-select, button {
+/* =======================
+   Inputs & buttons
+======================= */
+
+select,
+button {
   width: 100%;
   padding: 12px;
   margin-top: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
   font-size: 16px;
 }
 
+/* =======================
+   Select – Safari neutralized
+======================= */
+
 select {
-  background: #1b1e24;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  background-color: #1b1e24;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) 50%,
+    calc(100% - 14px) 50%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+
   color: var(--text);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: none;
+
+  padding-right: 40px;
 }
+
+/* =======================
+   Buttons
+======================= */
 
 button {
   background: var(--accent);
   color: #08131d;
   font-weight: 600;
   cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
 }
 
 button:hover {
-  opacity: 0.9;
+  opacity: 0.92;
 }
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Ghost button */
 
 .ghost {
   background: transparent;
@@ -88,92 +159,94 @@ button:hover {
   width: auto;
 }
 
-#options button {
-  background: #1b1e24;
-  color: var(--text);
-  margin-top: 10px;
-  text-align: left;
+/* =======================
+   Question emphasis
+======================= */
+
+#questionText {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  margin-bottom: 16px;
 }
 
+/* =======================
+   Answer options – premium
+======================= */
+
+#options button {
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.04),
+    rgba(255,255,255,0.01)
+  ), #1b1e24;
+
+  color: var(--text);
+  margin-top: 12px;
+  padding: 14px 16px;
+  text-align: left;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.25s ease;
+}
+
+#options button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.45);
+}
+
+#options button:disabled {
+  cursor: default;
+  opacity: 0.95;
+}
+
+/* =======================
+   Correct / incorrect
+======================= */
+
 .correct {
-  background: var(--correct) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.35),
+    rgba(255,255,255,0.1)
+  ), var(--correct) !important;
+
   color: #042e1c;
+  border-color: rgba(0,0,0,0.1);
 }
 
 .incorrect {
-  background: var(--wrong) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.25),
+    rgba(255,255,255,0.05)
+  ), var(--wrong) !important;
+
   color: #3a0c0c;
 }
 
-#progress, #categoryLabel {
+/* =======================
+   Progress & metadata
+======================= */
+
+#progress,
+#categoryLabel {
   color: var(--muted);
   font-size: 14px;
   margin-bottom: 8px;
 }
 
-hr {
-  border: none;
-  border-top: 1px solid #333846;
-  margin: 20px 0;
-}
-
-.hidden {
-  display: none;
-}
-
-input[type="range"] {
-  width: 100%;
-  margin-top: 10px;
-  accent-color: var(--accent);
-}
-
-.slider-meta {
-  display: flex;
-  justify-content: space-between;
-  color: var(--muted);
-  font-size: 14px;
-  margin-top: 4px;
-}
-
-.performance-item {
-  margin-bottom: 12px;
-}
-
-.performance-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.performance-bar {
-  height: 10px;
-  border-radius: 6px;
+#categoryLabel {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
   background: #1b1e24;
-  overflow: hidden;
-}
-
-.performance-fill {
-  height: 100%;
-  width: 0%;
-  transition: width 0.4s ease;
-}
-
-.performance-fill.pass {
-  background: var(--correct);
-}
-
-.performance-fill.borderline {
-  background: #facc15; /* amber */
-}
-
-.performance-fill.fail {
-  background: var(--wrong);
-}
-
-.muted {
-  color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
+  margin-bottom: 8px;
 }
 
 .progress-bar {
@@ -191,28 +264,39 @@ input[type="range"] {
   transition: width 0.3s ease;
 }
 
-#options button {
-  transition:
-    background-color 0.25s ease,
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+/* =======================
+   Slider
+======================= */
+
+input[type="range"] {
+  width: 100%;
+  margin-top: 10px;
+  accent-color: var(--accent);
 }
 
-#options button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+.slider-meta {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 4px;
 }
 
-#options button:disabled {
-  cursor: default;
-  opacity: 0.95;
+/* =======================
+   Misc
+======================= */
+
+hr {
+  border: none;
+  border-top: 1px solid #333846;
+  margin: 20px 0;
 }
 
-#categoryLabel {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #1b1e24;
-  font-size: 13px;
-  margin-bottom: 8px;
+.hidden {
+  display: none;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 14px;
 }
