@@ -206,60 +206,7 @@ function finishQuiz() {
   renderPerformance();
 }
 
-// =======================
-// Performance rendering
-// =======================
 
-function renderPerformance() {
-  performanceList.innerHTML = "";
-
-  const entries = Object.entries(categoryStats);
-
-  if (!entries.length) {
-    performanceList.innerHTML =
-      `<p class="muted">No data yet — complete a quiz to see stats.</p>`;
-    return;
-  }
-
-  entries.forEach(([cat, stats]) => {
-    const percent = Math.round((stats.correct / stats.attempts) * 100);
-    const cls = percent >= 75 ? "pass" : percent >= 60 ? "borderline" : "fail";
-
-    const item = document.createElement("div");
-    item.className = "performance-item";
-    item.innerHTML = `
-      <div class="performance-header">
-        <span>${cat}</span>
-        <span>${percent}%</span>
-      </div>
-      <div class="performance-bar">
-        <div class="performance-fill ${cls}" style="width:${percent}%"></div>
-      </div>
-    `;
-    performanceList.appendChild(item);
-  });
-}
-
-// =======================
-// RESET STATS (FINAL + LOGGED)
-// =======================
-
-resetStatsBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-
-  console.log("✅ Reset Stats button clicked");
-
-  const confirmed = confirm(
-    "Are you sure you want to reset all performance statistics?\nThis cannot be undone."
-  );
-
-  if (!confirmed) return;
-
-  categoryStats = {};
-  localStorage.removeItem("categoryStats");
-  renderPerformance();
-});
 
 // =======================
 // Home
