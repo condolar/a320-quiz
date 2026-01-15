@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>A320 Question Trainer</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <h1>A320 Self-Test</h1>
+    <button id="homeBtn" class="ghost hidden">Home</button>
+  </header>
+
+  <!-- HOME -->
+  <div id="startScreen" class="card">
+    <h2>Choose Mode</h2>
+
+    <div class="mode">
+      <h3>🧪 Exam Mode</h3>
+      <label>Number of questions</label>
+      <select id="questionCount">
+        <option value="10">10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="all">All</option>
+      </select>
+      <button id="startExam">Start Exam</button>
+    </div>
+
+    <hr />
+
+    <hr />
+
+<div class="mode">
+  <h3>📊 Category Performance</h3>
+  <div id="performanceList">
+    <p class="muted">No data yet — complete a quiz to see stats.</p>
+  </div>
+</div>
+
+
+    <div class="mode">
+  <h3>📚 Category Mode</h3>
+
+  <label>Select category</label>
+  <select id="categorySelect"></select>
+
+  <label>
+    Number of questions:
+    <span id="categoryCountLabel">0</span>
+  </label>
+
+  <input
+    type="range"
+    id="categorySlider"
+    min="0"
+    max="0"
+    value="0"
+  />
+
+  <div class="slider-meta">
+    <span>0</span>
+    <span id="categoryMax">0</span>
+  </div>
+
+  <button id="startCategory">Start Category Quiz</button>
+</div>
+
+
+  <!-- QUIZ -->
+  <div id="quiz" class="card hidden">
+    <div id="progress"></div>
+    <div id="categoryLabel"></div>
+    <h2 id="questionText"></h2>
+    <div id="options"></div>
+    <button id="nextBtn" class="hidden">Next</button>
+  </div>
+
+  <!-- SCORE -->
+  <div id="scoreScreen" class="card hidden">
+    <h2>Quiz Complete</h2>
+    <p id="finalScore"></p>
+    <button onclick="resetApp()">Back to Home</button>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
