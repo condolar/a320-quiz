@@ -11,16 +11,19 @@
 <div class="app">
 
   <header>
-    <h1>A320 Self-Test</h1>
+  <h1>A320 Technical Questions</h1>
+  <div>
+    <button id="resetStatsBtn" class="ghost" type="button">Reset Stats</button>
     <button id="homeBtn" class="ghost hidden">Home</button>
-  </header>
+  </div>
+</header>
+
 
   <!-- HOME -->
   <div id="startScreen" class="card">
-    <h2>Choose Mode</h2>
 
     <div class="mode">
-      <h3>🧪 Exam Mode</h3>
+      <h3>🧪 Mock Test</h3>
       <label>Number of questions</label>
       <select id="questionCount">
         <option value="10">10</option>
@@ -33,46 +36,54 @@
 
     <hr />
 
+    <div class="mode">
+      <h3>📚 All Questions</h3>
+
+      <label>Select category</label>
+      <select id="categorySelect"></select>
+
+      <label>
+        Number of questions:
+        <span id="categoryCountLabel">0</span>
+      </label>
+
+      <input
+        type="range"
+        id="categorySlider"
+        min="0"
+        max="0"
+        value="0"
+      />
+
+      <div class="slider-meta">
+        <span>0</span>
+        <span id="categoryMax">0</span>
+      </div>
+
+      <button id="startCategory">Start Category Quiz</button>
+    </div>
+
     <hr />
 
-<div class="mode">
+    <div class="mode">
   <h3>📊 Category Performance</h3>
+
   <div id="performanceList">
     <p class="muted">No data yet — complete a quiz to see stats.</p>
   </div>
+
+
 </div>
 
-
-    <div class="mode">
-  <h3>📚 Category Mode</h3>
-
-  <label>Select category</label>
-  <select id="categorySelect"></select>
-
-  <label>
-    Number of questions:
-    <span id="categoryCountLabel">0</span>
-  </label>
-
-  <input
-    type="range"
-    id="categorySlider"
-    min="0"
-    max="0"
-    value="0"
-  />
-
-  <div class="slider-meta">
-    <span>0</span>
-    <span id="categoryMax">0</span>
-  </div>
-
-  <button id="startCategory">Start Category Quiz</button>
 </div>
-
 
   <!-- QUIZ -->
+   
+
   <div id="quiz" class="card hidden">
+    <div class="progress-bar">
+    <div id="progressFill"></div>
+    </div>
     <div id="progress"></div>
     <div id="categoryLabel"></div>
     <h2 id="questionText"></h2>

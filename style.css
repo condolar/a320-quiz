@@ -175,3 +175,44 @@ input[type="range"] {
   color: var(--muted);
   font-size: 14px;
 }
+
+.progress-bar {
+  height: 8px;
+  background: #1b1e24;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+#progressFill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+#options button {
+  transition:
+    background-color 0.25s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+#options button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+
+#options button:disabled {
+  cursor: default;
+  opacity: 0.95;
+}
+
+#categoryLabel {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #1b1e24;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
