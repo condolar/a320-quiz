@@ -159,20 +159,6 @@ button:disabled {
   width: auto;
 }
 
-/* Ghost button – danger */
-
-.danger-ghost {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.18);
-  color: var(--wrong);
-  padding: 10px 14px;
-  width: auto;
-}
-
-.danger-ghost:hover {
-  border-color: rgba(255,255,255,0.28);
-}
-
 /* =======================
    Question emphasis
 ======================= */
@@ -300,54 +286,95 @@ input[type="range"] {
    Category performance
 ======================= */
 
-.performance-item {
-  margin-bottom: 12px;
-  padding: 14px 14px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(27,30,36,0.65);
+/* Actions (e.g., reset button) */
+.performance-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px 0 12px;
 }
 
-.performance-header {
+/* Summary card */
+.performance-summary {
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.12);
+  margin: 10px 0 14px;
+}
+
+.summary-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   margin-bottom: 10px;
 }
 
-.performance-title {
+.summary-title {
+  font-weight: 650;
+  letter-spacing: 0.2px;
+}
+
+.summary-meta {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.summary-score {
+  font-size: 22px;
+  font-weight: 750;
+}
+
+.summary-bar {
+  height: 10px;
+}
+
+/* Per-category cards */
+.performance-item {
+  margin-bottom: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.08);
+}
+
+.performance-row {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.performance-left {
+  min-width: 0;
 }
 
 .category-pill {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   padding: 6px 10px;
   border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,0.08);
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.06),
-    rgba(255,255,255,0.02)
-  ), #1b1e24;
-}
-
-.category-meta {
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.18);
+  font-weight: 650;
   font-size: 13px;
 }
 
 .performance-score {
   font-size: 18px;
-  font-weight: 700;
-  line-height: 1;
+  font-weight: 750;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.performance-meta {
+  margin-top: 6px;
+  font-size: 13px;
 }
 
 .performance-bar {
@@ -355,38 +382,6 @@ input[type="range"] {
   border-radius: 6px;
   background: #1b1e24;
   overflow: hidden;
-}
-
-.performance-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin: 10px 0 12px;
-}
-
-.performance-summary {
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(27,30,36,0.55);
-  margin-bottom: 14px;
-}
-
-.summary-main {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.summary-title {
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.summary-score {
-  font-size: 26px;
-  font-weight: 800;
-  line-height: 1;
 }
 
 .performance-fill {

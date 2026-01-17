@@ -258,6 +258,20 @@ function finishQuiz() {
 // Performance screen
 // =======================
 
+// Reset performance stats (keeps failed question list)
+if (resetPerformanceBtn) {
+  resetPerformanceBtn.addEventListener("click", () => {
+    const ok = confirm(
+      "Reset category performance stats? This will clear your category performance percentages. Your failed-question list will be kept."
+    );
+    if (!ok) return;
+
+    categoryStats = {};
+    localStorage.removeItem("categoryStats");
+    renderPerformance();
+  });
+}
+
 performanceBtn.addEventListener("click", () => {
   startScreen.classList.add("hidden");
   quiz.classList.add("hidden");
@@ -269,56 +283,53 @@ performanceBtn.addEventListener("click", () => {
   renderPerformance();
 });
 
-resetPerformanceBtn.addEventListener("click", () => {
-  const ok = confirm(
-    "Reset category performance stats? This will clear your performance percentages (your failed-question list will be kept)."
-  );
-  if (!ok) return;
-
-  categoryStats = {};
-  localStorage.removeItem("categoryStats");
-
-  renderPerformance();
-});
-
 function renderPerformance() {
   performanceList.innerHTML = "";
-  performanceSummary.classList.add("hidden");
-  performanceSummary.innerHTML = "";
 
   const entries = Object.entries(categoryStats);
 
+  // Summary
   if (entries.length === 0) {
+    if (performanceSummary) {
+      performanceSummary.classList.add("hidden");
+      performanceSummary.innerHTML = "";
+    }
     performanceList.innerHTML =
       `<p class="muted">No data yet. Complete a quiz to see performance.</p>`;
     return;
   }
 
-  // Summary
   const totals = entries.reduce(
-    (acc, [, stats]) => {
-      acc.attempts += stats.attempts || 0;
-      acc.correct += stats.correct || 0;
+    (acc, [, s]) => {
+      acc.attempts += s.attempts || 0;
+      acc.correct += s.correct || 0;
       return acc;
     },
     { attempts: 0, correct: 0 }
   );
 
-  const overallPercent = totals.attempts
+  const overallPct = totals.attempts
     ? Math.round((totals.correct / totals.attempts) * 100)
     : 0;
 
-  performanceSummary.innerHTML = `
-    <div class="summary-main">
+  if (performanceSummary) {
+    performanceSummary.classList.remove("hidden");
+    performanceSummary.innerHTML = `
+    <div class="summary-row">
       <div>
         <div class="summary-title">Overall</div>
-        <div class="summary-sub muted">${totals.attempts} attempts • ${totals.correct} correct</div>
+        <div class="summary-meta">${totals.correct}/${totals.attempts} correct</div>
       </div>
-      <div class="summary-score">${overallPercent}%</div>
+      <div class="summary-score">${overallPct}%</div>
+    </div>
+    <div class="performance-bar summary-bar">
+      <div class="performance-fill ${overallPct >= 80 ? "pass" : overallPct >= 60 ? "borderline" : "fail"}"
+           style="width: ${overallPct}%"></div>
     </div>
   `;
-  performanceSummary.classList.remove("hidden");
+  }
 
+  // Per-category rows
   entries
     .sort((a, b) => a[0].localeCompare(b[0]))
     .forEach(([category, stats]) => {
@@ -334,10 +345,10 @@ function renderPerformance() {
       item.className = "performance-item";
 
       item.innerHTML = `
-        <div class="performance-header">
-          <div class="performance-title">
+        <div class="performance-row">
+          <div class="performance-left">
             <span class="category-pill">${category}</span>
-            <span class="category-meta muted">${stats.correct}/${stats.attempts} correct</span>
+            <div class="performance-meta muted">${stats.correct}/${stats.attempts} correct</div>
           </div>
           <div class="performance-score">${percent}%</div>
         </div>
