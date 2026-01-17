@@ -31,7 +31,13 @@ const nextBtn = document.getElementById("nextBtn");
 const progress = document.getElementById("progress");
 const categoryLabel = document.getElementById("categoryLabel");
 const finalScore = document.getElementById("finalScore");
+const resultTitle = document.getElementById("resultTitle");
+const resultMessage = document.getElementById("resultMessage");
+const resultEmoji = document.getElementById("resultEmoji");
+const scorePercent = document.getElementById("scorePercent");
+const scoreMeterFill = document.getElementById("scoreMeterFill");
 const progressFill = document.getElementById("progressFill");
+const confetti = document.getElementById("confetti");
 
 const categorySelect = document.getElementById("categorySelect");
 const categorySlider = document.getElementById("categorySlider");
@@ -250,8 +256,93 @@ function finishQuiz() {
   quiz.classList.add("hidden");
   scoreScreen.classList.remove("hidden");
 
-  finalScore.textContent =
-    `You scored ${score} out of ${quizQuestions.length}`;
+  const total = quizQuestions.length || 0;
+  const pct = total ? Math.round((score / total) * 100) : 0;
+
+  // Copy + vibe based on pass mark (75%)
+  const tier = pct >= 75 ? "pass" : pct >= 60 ? "near" : "fail";
+
+  // Clear previous tier classes
+  scoreScreen.classList.remove("score-pass", "score-near", "score-fail");
+  scoreScreen.classList.add(
+    tier === "pass" ? "score-pass" : tier === "near" ? "score-near" : "score-fail"
+  );
+
+  if (finalScore) {
+    finalScore.textContent = `You scored ${score} out of ${total}`;
+  }
+  if (scorePercent) {
+    scorePercent.textContent = `${pct}%`;
+  }
+  if (scoreMeterFill) {
+    scoreMeterFill.style.width = `${pct}%`;
+  }
+
+  if (tier === "pass") {
+    if (resultTitle) resultTitle.textContent = "Well done — you passed!";
+    if (resultMessage)
+      resultMessage.textContent = "Strong result. Keep it up and aim for consistency across categories.";
+    if (resultEmoji) resultEmoji.textContent = "🎉";
+
+    // Small confetti burst for a pass
+    launchConfetti();
+  } else if (tier === "near") {
+    if (resultTitle) resultTitle.textContent = "Almost there";
+    if (resultMessage)
+      resultMessage.textContent = "You’re close to the 75% pass mark. Have another run — you’ve got this.";
+    if (resultEmoji) resultEmoji.textContent = "⚡";
+  } else {
+    if (resultTitle) resultTitle.textContent = "Let’s go again";
+    if (resultMessage)
+      resultMessage.textContent = "No stress — practice a few weak areas and try again. Progress beats perfection.";
+    if (resultEmoji) resultEmoji.textContent = "💪";
+  }
+}
+
+// =======================
+// Confetti (lightweight, no libraries)
+// =======================
+
+function launchConfetti() {
+  if (!confetti || !scoreScreen) return;
+
+  // Clear any existing pieces
+  confetti.innerHTML = "";
+
+  const colors = [
+    "var(--accent)",
+    "var(--correct)",
+    "#facc15",
+    "rgba(255,255,255,0.85)",
+  ];
+
+  const pieceCount = 26;
+
+  for (let i = 0; i < pieceCount; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+
+    const left = Math.random() * 100;
+    const size = 6 + Math.random() * 6;
+    const duration = 700 + Math.random() * 700;
+    const delay = Math.random() * 120;
+    const dx = (Math.random() * 2 - 1) * 80; // sideways drift
+
+    piece.style.left = `${left}%`;
+    piece.style.width = `${size}px`;
+    piece.style.height = `${Math.max(8, size * 1.3)}px`;
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDuration = `${duration}ms`;
+    piece.style.animationDelay = `${delay}ms`;
+    piece.style.setProperty("--dx", `${dx}px`);
+
+    confetti.appendChild(piece);
+  }
+
+  // Cleanup after animation finishes
+  window.setTimeout(() => {
+    if (confetti) confetti.innerHTML = "";
+  }, 1600);
 }
 
 // =======================
@@ -262,7 +353,7 @@ function finishQuiz() {
 if (resetPerformanceBtn) {
   resetPerformanceBtn.addEventListener("click", () => {
     const ok = confirm(
-      "Reset category performance stats? This will clear your category performance percentages."
+      "Reset category performance stats? This will clear your category performance percentages. Your failed-question list will be kept."
     );
     if (!ok) return;
 
@@ -375,6 +466,13 @@ function resetApp() {
   scoreScreen.classList.add("hidden");
   performanceScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
+
+  // Clean up score UI
+  scoreScreen.classList.remove("score-pass", "score-near", "score-fail");
+  if (scoreMeterFill) scoreMeterFill.style.width = "0%";
+  if (scorePercent) scorePercent.textContent = "";
+  if (resultMessage) resultMessage.textContent = "";
+  if (confetti) confetti.innerHTML = "";
 
   homeBtn.classList.add("hidden");
   progressFill.style.width = "0%";

@@ -293,6 +293,24 @@ input[type="range"] {
   margin: 10px 0 12px;
 }
 
+.performance-actions.bottom {
+  justify-content: flex-start;
+  margin: 16px 0 0;
+}
+
+/* Red outline button for destructive actions */
+.danger-outline {
+  background: transparent;
+  border: 1px solid rgba(255, 107, 107, 0.9);
+  color: var(--wrong);
+  font-weight: 650;
+}
+
+.danger-outline:hover {
+  opacity: 0.95;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.35);
+}
+
 /* Summary card */
 .performance-summary {
   padding: 14px 14px 12px;
@@ -400,6 +418,213 @@ input[type="range"] {
 
 .performance-fill.fail {
   background: var(--wrong);
+}
+
+/* =======================
+   Score screen – playful, modern
+======================= */
+
+#scoreScreen {
+  position: relative;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -14px;
+  border-radius: 2px;
+  opacity: 0.95;
+  transform: translateX(0) rotate(0deg);
+  animation-name: confettiFall;
+  animation-timing-function: cubic-bezier(.2,.7,.2,1);
+  animation-fill-mode: both;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  100% {
+    transform: translateX(var(--dx)) translateY(140px) rotate(260deg);
+    opacity: 0;
+  }
+}
+
+.result-hero,
+.result-stats,
+.result-meter,
+.result-actions {
+  position: relative;
+  z-index: 1;
+}
+
+.result-hero {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.result-badge {
+  position: relative;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.10);
+  background:
+    radial-gradient(120% 120% at 20% 10%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 55%),
+    rgba(0,0,0,0.22);
+  box-shadow:
+    0 16px 34px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+.result-badge span {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.result-spark {
+  position: absolute;
+  inset: -30%;
+  background:
+    conic-gradient(
+      from 210deg,
+      rgba(255,255,255,0) 0deg,
+      rgba(255,255,255,0.18) 60deg,
+      rgba(255,255,255,0) 120deg
+    );
+  opacity: 0.0;
+  transform: rotate(0deg);
+}
+
+.result-copy h2 {
+  margin: 0 0 4px 0;
+}
+
+.result-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin: 10px 0 12px;
+}
+
+.result-score {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.result-percent {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.result-meter {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.result-meter-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 0.6s ease;
+}
+
+.result-actions {
+  margin-top: 6px;
+}
+
+/* Tier styling + micro-animations */
+
+.score-pass {
+  border: 1px solid rgba(60, 207, 145, 0.26);
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(60,207,145,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.score-pass .result-meter-fill {
+  background: var(--correct);
+}
+
+.score-pass .result-badge {
+  animation: popIn 0.55s cubic-bezier(.2,.9,.2,1);
+}
+
+.score-pass .result-spark {
+  opacity: 0.35;
+  animation: spinSpark 1.2s ease-out;
+}
+
+.score-near {
+  border: 1px solid rgba(250, 204, 21, 0.22);
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(250,204,21,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.score-near .result-meter-fill {
+  background: #facc15;
+}
+
+.score-near .result-badge {
+  animation: wobble 0.7s ease;
+}
+
+.score-fail {
+  border: 1px solid rgba(255, 107, 107, 0.24);
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(255,107,107,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.score-fail .result-meter-fill {
+  background: var(--wrong);
+}
+
+.score-fail .result-badge {
+  animation: shake 0.45s ease;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.75); opacity: 0; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes wobble {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-3px); }
+  50% { transform: translateY(2px); }
+  75% { transform: translateY(-1px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes spinSpark {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(300deg); }
 }
 
 

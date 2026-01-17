@@ -23,21 +23,21 @@
   <div id="startScreen" class="card">
 
     <div class="mode">
-      <h3>🧪 Mock Test</h3>
-      <label>Number of questions</label>
+      <h3>🧪 Randomised Mock Test</h3>
+      <label>Select number of questions</label>
       <select id="questionCount">
         <option value="10">10</option>
         <option value="25">25</option>
         <option value="50">50</option>
         <option value="all">All</option>
       </select>
-      <button id="startExam">Start Exam</button>
+      <button id="startExam">Start Test</button>
     </div>
 
     <hr />
 
     <div class="mode">
-      <h3>📚 All Questions</h3>
+      <h3>📚 All Questions by Category</h3>
 
       <label>Select category</label>
       <select id="categorySelect"></select>
@@ -74,6 +74,7 @@
     </div>
 
   </div>
+  
 
   <!-- QUIZ SCREEN -->
   <div id="quiz" class="card hidden">
@@ -94,21 +95,44 @@
 
   <!-- SCORE SCREEN -->
   <div id="scoreScreen" class="card hidden">
-    <h2>Quiz Complete</h2>
-    <p id="finalScore"></p>
-    <button onclick="resetApp()">Back to Home</button>
+    <div id="confetti" class="confetti" aria-hidden="true"></div>
+    <div class="result-hero">
+      <div class="result-badge" aria-hidden="true">
+        <span id="resultEmoji">🏁</span>
+        <span class="result-spark" aria-hidden="true"></span>
+      </div>
+
+      <div class="result-copy">
+        <h2 id="resultTitle">Quiz Complete</h2>
+        <p id="resultMessage" class="muted"></p>
+      </div>
+    </div>
+
+    <div class="result-stats">
+      <div class="result-score" id="finalScore"></div>
+      <div class="result-percent" id="scorePercent"></div>
+    </div>
+
+    <div class="result-meter" aria-hidden="true">
+      <div class="result-meter-fill" id="scoreMeterFill"></div>
+    </div>
+
+    <div class="result-actions">
+      <button onclick="resetApp()">Back to Home</button>
+    </div>
   </div>
 
   <!-- PERFORMANCE SCREEN -->
   <div id="performanceScreen" class="card hidden">
     <h2>📊 Category Performance</h2>
     <p class="muted">Based on all completed questions</p>
-    <div class="performance-actions">
-      <button id="resetPerformanceBtn" class="danger-ghost">Reset performance stats</button>
-    </div>
 
     <div id="performanceSummary" class="performance-summary hidden"></div>
     <div id="performanceList"></div>
+
+    <div class="performance-actions bottom">
+      <button id="resetPerformanceBtn" class="danger-outline">Reset performance stats</button>
+    </div>
   </div>
 
 </div>
