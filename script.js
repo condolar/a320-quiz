@@ -44,6 +44,8 @@ const startCategoryBtn = document.getElementById("startCategory");
 const retryFailedBtn = document.getElementById("retryFailed");
 
 const performanceList = document.getElementById("performanceList");
+const performanceSummary = document.getElementById("performanceSummary");
+const resetPerformanceBtn = document.getElementById("resetPerformanceBtn");
 
 // =======================
 // Initial UI state
@@ -267,8 +269,22 @@ performanceBtn.addEventListener("click", () => {
   renderPerformance();
 });
 
+resetPerformanceBtn.addEventListener("click", () => {
+  const ok = confirm(
+    "Reset category performance stats? This will clear your performance percentages (your failed-question list will be kept)."
+  );
+  if (!ok) return;
+
+  categoryStats = {};
+  localStorage.removeItem("categoryStats");
+
+  renderPerformance();
+});
+
 function renderPerformance() {
   performanceList.innerHTML = "";
+  performanceSummary.classList.add("hidden");
+  performanceSummary.innerHTML = "";
 
   const entries = Object.entries(categoryStats);
 
@@ -278,12 +294,37 @@ function renderPerformance() {
     return;
   }
 
+  // Summary
+  const totals = entries.reduce(
+    (acc, [, stats]) => {
+      acc.attempts += stats.attempts || 0;
+      acc.correct += stats.correct || 0;
+      return acc;
+    },
+    { attempts: 0, correct: 0 }
+  );
+
+  const overallPercent = totals.attempts
+    ? Math.round((totals.correct / totals.attempts) * 100)
+    : 0;
+
+  performanceSummary.innerHTML = `
+    <div class="summary-main">
+      <div>
+        <div class="summary-title">Overall</div>
+        <div class="summary-sub muted">${totals.attempts} attempts • ${totals.correct} correct</div>
+      </div>
+      <div class="summary-score">${overallPercent}%</div>
+    </div>
+  `;
+  performanceSummary.classList.remove("hidden");
+
   entries
     .sort((a, b) => a[0].localeCompare(b[0]))
     .forEach(([category, stats]) => {
-      const percent = Math.round(
-        (stats.correct / stats.attempts) * 100
-      );
+      const percent = stats.attempts
+        ? Math.round((stats.correct / stats.attempts) * 100)
+        : 0;
 
       let status = "fail";
       if (percent >= 80) status = "pass";
@@ -294,8 +335,11 @@ function renderPerformance() {
 
       item.innerHTML = `
         <div class="performance-header">
-          <span>${category}</span>
-          <span>${percent}% (${stats.correct}/${stats.attempts})</span>
+          <div class="performance-title">
+            <span class="category-pill">${category}</span>
+            <span class="category-meta muted">${stats.correct}/${stats.attempts} correct</span>
+          </div>
+          <div class="performance-score">${percent}%</div>
         </div>
         <div class="performance-bar">
           <div class="performance-fill ${status}"
