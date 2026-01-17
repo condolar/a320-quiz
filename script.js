@@ -262,7 +262,7 @@ function finishQuiz() {
 if (resetPerformanceBtn) {
   resetPerformanceBtn.addEventListener("click", () => {
     const ok = confirm(
-      "Reset category performance stats? This will clear your category performance percentages. Your failed-question list will be kept."
+      "Reset category performance stats? This will clear your category performance percentages."
     );
     if (!ok) return;
 
