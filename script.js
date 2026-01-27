@@ -179,14 +179,20 @@ function showQuestion() {
   progressFill.style.width =
     `${((currentIndex + 1) / quizQuestions.length) * 100}%`;
 
-  nextBtn.classList.add("hidden");
-  optionsDiv.innerHTML = "";
+  // Next is always visible, but disabled until an answer is selected
+  nextBtn.classList.remove("hidden");
+  nextBtn.disabled = true;
+  nextBtn.textContent =
+    currentIndex < quizQuestions.length - 1 ? "Next" : "Finish";
 
+  // Reset UI for new question
+  optionsDiv.innerHTML = "";
   questionText.textContent = q.question;
   categoryLabel.textContent = q.category;
   progress.textContent =
     `Question ${currentIndex + 1} of ${quizQuestions.length}`;
 
+  // Render options
   q.options.forEach((opt, idx) => {
     const btn = document.createElement("button");
     btn.textContent = opt;
@@ -199,6 +205,7 @@ function selectAnswer(button, index) {
   const q = quizQuestions[currentIndex];
   const buttons = optionsDiv.querySelectorAll("button");
 
+  // Lock answers + reveal correct
   buttons.forEach((btn, idx) => {
     btn.disabled = true;
     if (idx === q.correctIndex) btn.classList.add("correct");
@@ -229,21 +236,13 @@ function selectAnswer(button, index) {
     }
   }
 
-  localStorage.setItem(
-    "categoryStats",
-    JSON.stringify(categoryStats)
-  );
-
-  localStorage.setItem(
-    "failedQuestions",
-    JSON.stringify(failedQuestions)
-  );
+  localStorage.setItem("categoryStats", JSON.stringify(categoryStats));
+  localStorage.setItem("failedQuestions", JSON.stringify(failedQuestions));
 
   retryFailedBtn.disabled = failedQuestions.length === 0;
 
-  setTimeout(() => {
-    nextBtn.classList.remove("hidden");
-  }, 600);
+  // Enable Next immediately (no layout jump / no “appearing” animation)
+  nextBtn.disabled = false;
 }
 
 nextBtn.addEventListener("click", () => {

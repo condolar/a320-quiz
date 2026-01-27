@@ -4,7 +4,7 @@
   --text: #e6e8eb;
   --muted: #9aa3b2;
   --accent: #5cc8ff;
-  --correct: #3ccf91;
+  --correct: #1f9d6b;
   --wrong: #ff6b6b;
 }
 
@@ -148,6 +148,13 @@ button:disabled {
   opacity: 0.6;
   cursor: default;
 }
+
+/* Unified hover for primary action buttons */
+button:not(.ghost):not(.danger-outline):hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.45);
+}
+
 
 /* Ghost button */
 
@@ -668,4 +675,24 @@ hr {
 
 .incorrect {
   animation: shake 0.35s ease;
+}
+
+.correct {
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.18),
+    rgba(0,0,0,0.08)
+  ), var(--correct) !important;
+
+  color: #ffffff;
+  border-color: rgba(0,0,0,0.2);
+}
+
+/* Give the Next button breathing room from the answer list */
+#options {
+  margin-bottom: 18px;
+}
+
+#nextBtn {
+  margin-top: 0; /* spacing handled by #options margin-bottom */
 }

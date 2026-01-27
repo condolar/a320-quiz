@@ -1306,7 +1306,7 @@
     "question": "What information is supplied by the IR’s and displayed on the PFD?",
     "options": [
       "Heading, attitude, and vertical speed.",
-      "Heading, altitude, and vertical speed *",
+      "Heading, altitude, and vertical speed ",
       "Airspeed, altitude, and backup vertical speed.",
       "Heading, attitude, and altitude."
     ],
@@ -1421,7 +1421,7 @@
     "question": "What is the difference between -FD2 and 2FD- on the FMA?",
     "options": [
       "1 inop, 2 engaged. 2 engaged, 1 off.",
-      "1 off, 2 engaged. 2 engaged, 1 inop*"
+      "1 off, 2 engaged. 2 engaged, 1 inop"
     ],
     "correctIndex": 1
   },
@@ -1626,7 +1626,7 @@
     "question": "When does the sideslip indicator change to a blue Beta target?",
     "options": [
       "Flaps configuration 1.",
-      "Any EPR exceeds 1.25, and EPR’s differ by more than 0.30 *",
+      "Any EPR exceeds 1.25, and EPR’s differ by more than 0.30 ",
       "Heading differs from track by 20 deg or more",
       "Flaps configuration 1, 2."
     ],
@@ -2276,7 +2276,7 @@
     "options": [
       "The ND",
       "The PFD",
-      "The SED*"
+      "The SED"
     ],
     "correctIndex": 0
   },
@@ -2979,7 +2979,7 @@
       "The landing gear is down.",
       "The RAT is deployed",
       "The RAT is deployed and the landing gear is down",
-      "The landing gear is up*"
+      "The landing gear is up"
     ],
     "correctIndex": 3
   },
@@ -2988,7 +2988,7 @@
     "category": "ELECTRICAL",
     "question": "Which radios are inoperative with gear extension while in the emergency electrical configuration?",
     "options": [
-      "DME 1 and transponder 1 *",
+      "DME 1 and transponder 1 ",
       "DME 1, DDRMI, and transponder 1.",
       "DME, and transponder 1.",
       "ILS 2, DME, and ADF."
@@ -3128,7 +3128,7 @@
     "question": "While operating on Emergency Electrical Power (EMER GEN powering the system) what should the crew accomplish prior to lowering the landing gear?",
     "options": [
       "Check to see that the FMGC has auto tuned the appropriate NAV facility for the approach to be accomplished.",
-      "Depress the guarded RMP NAV push button and tune the appropriate NAV facility and course for the approach to be accomplished *",
+      "Depress the guarded RMP NAV push button and tune the appropriate NAV facility and course for the approach to be accomplished ",
       "Both are correct."
     ],
     "correctIndex": 1
@@ -3313,7 +3313,7 @@
     "question": "The static inverter works:",
     "options": [
       "Always",
-      "When aircraft speed is > 50 kt and on batteries only *",
+      "When aircraft speed is > 50 kt and on batteries only ",
       "When one main generator fails",
       "Only when generator 2 fails"
     ],
@@ -4240,7 +4240,7 @@
     "options": [
       "The AC ESS bus is powered.",
       "Electrical power is applied to the aircraft.",
-      "When at least one engine is running *"
+      "When at least one engine is running "
     ],
     "correctIndex": 2
   },
@@ -4252,7 +4252,7 @@
       "The system should only be selected ON in icing conditions.",
       "When in AUTO mode, the windows are heated only when necessary.",
       "The system should only be selected ON after first engine start.",
-      "Window heating comes on automatically after first engine start *"
+      "Window heating comes on automatically after first engine start "
     ],
     "correctIndex": 3
   },
@@ -4262,7 +4262,7 @@
     "question": "The drain masts are heated after first engine start.",
     "options": [
       "True.",
-      "False *"
+      "False "
     ],
     "correctIndex": 1
   },
@@ -4840,7 +4840,7 @@
     "question": "What are the major equipment losses with loss of Green system?",
     "options": [
       "Speed Brakes.",
-      "Nosewheel steering, Autobrakes *",
+      "Nosewheel steering, Autobrakes ",
       "Alternate Brakes.",
       "The upper and lower rudders."
     ],
@@ -5017,7 +5017,7 @@
     "question": "If you lost the GREEN system, what equipment is lost?",
     "options": [
       "Reverser 1 and gear retraction.",
-      "Reverser 1, gear retraction and nose wheel steering *",
+      "Reverser 1, gear retraction and nose wheel steering ",
       "Reverser 2, gear retraction, cargo doors and nose wheel steering.",
       "Reverser 2 and gear retraction."
     ],
@@ -5130,7 +5130,7 @@
     "category": "APU",
     "question": "To start the APU the:",
     "options": [
-      "BAT 1 and 2 push buttons must be selected to ON *",
+      "BAT 1 and 2 push buttons must be selected to ON ",
       "BAT 1 and 2 push buttons do not need to be selected ON if external power is available.",
       "Both are correct."
     ],
@@ -5242,7 +5242,7 @@
     "options": [
       "Stops immediately",
       "Keeps running for 4 minutes",
-      "Keeps running for 2 minutes *",
+      "Keeps running for 2 minutes ",
       "Keeps running for 60 seconds"
     ],
     "correctIndex": 3
@@ -5544,7 +5544,7 @@
     "options": [
       "Closes the pack valves.",
       "Initiates the start sequence.",
-      "Displays the ECAM engine page *",
+      "Displays the ECAM engine page ",
       "First two statements are correct"
     ],
     "correctIndex": 3
@@ -5579,7 +5579,7 @@
       "Flex or TO/GA thrust is selected on the ground.",
       "ENG ANTI ICE switch is ON",
       "Engine surge on stall occurs in flight.",
-      "Any of the above *"
+      "Any of the above "
     ],
     "correctIndex": 3
   },
@@ -5832,7 +5832,7 @@
     "options": [
       "Thrust and Mach.",
       "Thrust and speed",
-      "Variable thrust and fixed speed *",
+      "Variable thrust and fixed speed ",
       "Mach and speed."
     ],
     "correctIndex": 2
@@ -6392,7 +6392,7 @@
     "category": "LANDING GEAR",
     "question": "Which hydraulic system supplies pressure to the nose wheel steering?",
     "options": [
-      "Green*",
+      "Green",
       "Blue",
       "Green and Blue.",
       "Yellow."
@@ -6497,7 +6497,7 @@
     "question": "When the landing gear is gravity extended, will nose wheel steering be available?",
     "options": [
       "Only if the A/SKID & N/W STRG switch is selected ON.",
-      "No *",
+      "No ",
       "Limited nose wheel steering is available only through the captain’s rudder pedals."
     ],
     "correctIndex": 1
@@ -6866,7 +6866,7 @@
     "category": "LANDING GEAR",
     "question": "Following failure of all 3 ADIRS, is antiskid available?",
     "options": [
-      "Yes *",
+      "Yes ",
       "No",
       "Only with Yellow hydraulics",
       "Only with Green hydraulics"
@@ -7117,7 +7117,7 @@
     "category": "OXYGEN",
     "question": "What does an amber OXY on the ECAM Doors mean?",
     "options": [
-      "The crew supply switch is turned off and/or oxygen pressure is less than 400 psi *",
+      "The crew supply switch is turned off and/or oxygen pressure is less than 400 psi ",
       "The crew supply switch is turned off",
       "Oxygen pressure is less than 650 psi.",
       "Oxygen pressure is less than 300 psi."
@@ -7186,7 +7186,7 @@
     "category": "EQUIPMENT",
     "question": "Which situation will automatically illuminate the escape path lighting?",
     "options": [
-      "The loss of power to the DC ESS SHED bus and The loss of power to the AC bus #1 *",
+      "The loss of power to the DC ESS SHED bus and The loss of power to the AC bus #1 ",
       "The loss of power to the AC ESS SHED bus and The loss of power to the AC bus #1",
       "The loss of power to the AC ESS SHED and the loss of power to the DC ESS SHED",
       "The loss of power to the AC ESS SHED"
@@ -7292,7 +7292,7 @@
     "question": "There is no other way of deploying the overwing escape slide if it fails to deploy automatically on opening the emergency exit.",
     "options": [
       "True.",
-      "False *"
+      "False "
     ],
     "correctIndex": 1
   },
@@ -7303,7 +7303,7 @@
     "options": [
       "Electrical fires only.",
       "Electrical and burning metals.",
-      "Electrical and flammable liquid fires *",
+      "Electrical and flammable liquid fires ",
       "Electrical and ordinary combustibles."
     ],
     "correctIndex": 2
@@ -7349,7 +7349,7 @@
     "question": "You can tune the ILS receivers to different channels.",
     "options": [
       "Yes.",
-      "No *"
+      "No "
     ],
     "correctIndex": 1
   },
@@ -7448,7 +7448,7 @@
     "question": "Only the last 60 minutes of recording are retained by the CVR.",
     "options": [
       "True.",
-      "False *"
+      "False "
     ],
     "correctIndex": 1
   },
@@ -7458,7 +7458,7 @@
     "question": "To make a PA announcement:",
     "options": [
       "Depress and hold the PA transmission key push button.",
-      "Use the pedestal mounted headset *",
+      "Use the pedestal mounted headset ",
       "Both are correct."
     ],
     "correctIndex": 2
@@ -7766,7 +7766,7 @@
     "category": "COMMUNICATION",
     "question": "To transmit and receive on the service interphone, the pilot must select the:",
     "options": [
-      "CAB reception knob and the ATT transmission key on the ACP *",
+      "CAB reception knob and the ATT transmission key on the ACP ",
       "CAB reception knob and the MECH transmission key on the ACP.",
       "Service Int on the nose gear panel."
     ],
@@ -7779,7 +7779,7 @@
     "options": [
       "Select the INT/RAD selector to INT, and INT audio selector on",
       "Select the transmission key push button labeled INT and the INT audio selector.",
-      "Select the transmission key push button labeled CAB and the audio selector labeled CAB *"
+      "Select the transmission key push button labeled CAB and the audio selector labeled CAB "
     ],
     "correctIndex": 2
   },
@@ -8109,7 +8109,7 @@
       "Relieve wing structure loads by moving the ailerons.",
       "Relieve wing structure loads by extending spoilers 4 and 5.",
       "Help slow the airplane down.",
-      "First two statements are correct *"
+      "First two statements are correct "
     ],
     "correctIndex": 3
   },
@@ -9043,7 +9043,7 @@
     "category": "NAVIGATION",
     "question": "SRS will command:",
     "options": [
-      "V2 + 10 with both engines operating *",
+      "V2 + 10 with both engines operating ",
       "V2 or current aircraft speed (whichever is higher) in the case of an engine failure.",
       "Best rate of climb taking into account actual wind component."
     ],
@@ -9152,7 +9152,7 @@
     "options": [
       "FMGC #1 has “timed out” and flight guidance is lost.",
       "The First Officer has pushed the priority takeover pushbutton.",
-      "FMGC #1 has “timed out” and FMGC #2 is now providing flight guidance for both pilots *",
+      "FMGC #1 has “timed out” and FMGC #2 is now providing flight guidance for both pilots ",
       "The Captain’s FD pushbutton. on the FCU has not been selected “ON” and FD2 has automatically crossed over."
     ],
     "correctIndex": 2
@@ -9207,7 +9207,7 @@
     "category": "NAVIGATION",
     "question": "Will the aircraft capture and navigate via the ILS signals if the ILS push button on the FCU is not pushed?",
     "options": [
-      "Yes *",
+      "Yes ",
       "No."
     ],
     "correctIndex": 0
@@ -9347,7 +9347,7 @@
       "100 kts.",
       "80 kts",
       "50 kts.",
-      "30 kts *"
+      "30 kts "
     ],
     "correctIndex": 3
   },
@@ -9510,7 +9510,7 @@
     "category": "NAVIGATION",
     "question": "The Standby Attitude indication will remain available for minutes after total electrical failure.",
     "options": [
-      "5*",
+      "5",
       "7",
       "10",
       "22"
@@ -9970,7 +9970,7 @@
     "question": "During the walk-around, you have to check that the APU Fire extinguisher overpressure indication (green disc) is in place. This is an indication that the fire bottle has not been discharged.",
     "options": [
       "True",
-      "False *"
+      "False "
     ],
     "correctIndex": 1
   },
