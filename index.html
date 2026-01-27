@@ -36,6 +36,7 @@
 
     <hr />
 
+    <!-- SECTION 1: All Questions by Category (slider applies here only) -->
     <div class="mode">
       <h3>📚 All Questions by Category</h3>
 
@@ -65,6 +66,16 @@
 
     <hr />
 
+    <!-- SECTION 2: Unseen Questions by Category (NO slider) -->
+    <div class="mode">
+      <h3>👀 Unseen Questions by Category</h3>
+      <label>Select category</label>
+      <select id="unseenCategorySelect"></select>
+      <button id="practiceUnseenCategory">Practice Unseen</button>
+    </div>
+
+    <hr />
+
     <div class="mode">
       <h3>🔁 Retry Failed Questions</h3>
       <p class="muted">
@@ -74,7 +85,6 @@
     </div>
 
   </div>
-  
 
   <!-- QUIZ SCREEN -->
   <div id="quiz" class="card hidden">
@@ -96,6 +106,7 @@
   <!-- SCORE SCREEN -->
   <div id="scoreScreen" class="card hidden">
     <div id="confetti" class="confetti" aria-hidden="true"></div>
+
     <div class="result-hero">
       <div class="result-badge" aria-hidden="true">
         <span id="resultEmoji">🏁</span>

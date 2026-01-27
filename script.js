@@ -1,22 +1,67 @@
 // =======================
-// Global state
+// A320 Question Trainer — script.js
+// Mastery-based performance (fixed denominators) + completion indicators
+// + practice UNSEEN questions per selected category (separate section, no slider)
+// + RANDOMISED answer option order (per question display)
 // =======================
 
+// -----------------------
+// Storage helpers
+// -----------------------
+function loadJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveJSON(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function getQuestionId(q) {
+  // Stable key for "denominator integrity"
+  if (q && q.reference) return String(q.reference);
+
+  // Deterministic fallback if references are missing
+  const cat = q && q.category ? String(q.category) : "UNCAT";
+  const text = q && q.question ? String(q.question) : "NOQUESTION";
+  return `${cat}::${text}`;
+}
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+// -----------------------
+// Global state
+// -----------------------
 let allQuestions = [];
 let quizQuestions = [];
 let currentIndex = 0;
 let score = 0;
 
-let categoryStats =
-  JSON.parse(localStorage.getItem("categoryStats")) || {};
+// Mastery tracking:
+// performanceStats[category][questionId] = { correct: boolean }
+let performanceStats = loadJSON("performanceStats", {});
 
-let failedQuestions =
-  JSON.parse(localStorage.getItem("failedQuestions")) || [];
+// Seen tracking (for unseen practice):
+// seenStats[category][questionId] = true
+let seenStats = loadJSON("seenStats", {});
 
-// =======================
-// DOM elements
-// =======================
+// Failed questions list:
+let failedQuestions = loadJSON("failedQuestions", []);
 
+// Current shuffled options for the question being displayed
+let currentOptionOrder = []; // array of { text: string, isCorrect: boolean }
+
+// -----------------------
+// DOM
+// -----------------------
 const startScreen = document.getElementById("startScreen");
 const quiz = document.getElementById("quiz");
 const scoreScreen = document.getElementById("scoreScreen");
@@ -49,272 +94,387 @@ const startExamBtn = document.getElementById("startExam");
 const startCategoryBtn = document.getElementById("startCategory");
 const retryFailedBtn = document.getElementById("retryFailed");
 
+// Separate "Unseen Questions by Category" section in HTML
+const unseenCategorySelect = document.getElementById("unseenCategorySelect");
+const practiceUnseenCategoryBtn = document.getElementById("practiceUnseenCategory");
+
 const performanceList = document.getElementById("performanceList");
 const performanceSummary = document.getElementById("performanceSummary");
 const resetPerformanceBtn = document.getElementById("resetPerformanceBtn");
 
-// =======================
+// -----------------------
 // Initial UI state
-// =======================
+// -----------------------
+if (startExamBtn) startExamBtn.disabled = true;
+if (startCategoryBtn) startCategoryBtn.disabled = true;
+if (retryFailedBtn) retryFailedBtn.disabled = failedQuestions.length === 0;
+if (practiceUnseenCategoryBtn) practiceUnseenCategoryBtn.disabled = true;
 
-startExamBtn.disabled = true;
-startCategoryBtn.disabled = true;
-retryFailedBtn.disabled = failedQuestions.length === 0;
-
-// =======================
-// Load questions
-// =======================
-
+// -----------------------
+// Load questions.json
+// -----------------------
 fetch("./questions.json")
   .then(res => res.json())
   .then(data => {
     allQuestions = data;
 
-    startExamBtn.disabled = false;
+    if (startExamBtn) startExamBtn.disabled = false;
 
+    // Populate category dropdowns
     const categories = [...new Set(data.map(q => q.category))].sort();
-    categorySelect.innerHTML = `<option value="">Select category</option>`;
 
-    categories.forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat;
-      opt.textContent = cat;
-      categorySelect.appendChild(opt);
-    });
+    if (categorySelect) {
+      categorySelect.innerHTML = `<option value="">Select category</option>`;
+      categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+    }
+
+    if (unseenCategorySelect) {
+      unseenCategorySelect.innerHTML = `<option value="">Select category</option>`;
+      categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        unseenCategorySelect.appendChild(opt);
+      });
+    }
+
+    // If Performance is open already, render now
+    if (performanceScreen && !performanceScreen.classList.contains("hidden")) {
+      renderPerformance();
+    }
+
+    // Ensure unseen section button state is correct after initial load
+    updateUnseenSectionUI();
   })
-  .catch(() => {
-    alert("Failed to load questions.json");
+  .catch(() => alert("Failed to load questions.json"));
+
+// -----------------------
+// Home: Randomised Mock Test
+// -----------------------
+if (startExamBtn) {
+  startExamBtn.addEventListener("click", () => {
+    const countValue = questionCountSelect ? questionCountSelect.value : "10";
+    const shuffled = shuffle(allQuestions);
+
+    quizQuestions =
+      countValue === "all" ? shuffled : shuffled.slice(0, parseInt(countValue, 10));
+
+    startQuiz();
   });
+}
 
-// =======================
-// Exam mode
-// =======================
+// -----------------------
+// Home: Retry Failed Questions
+// -----------------------
+if (retryFailedBtn) {
+  retryFailedBtn.addEventListener("click", () => {
+    failedQuestions = loadJSON("failedQuestions", []);
+    if (failedQuestions.length === 0) return;
 
-startExamBtn.addEventListener("click", () => {
-  const countValue = questionCountSelect.value;
-  const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+    quizQuestions = shuffle(failedQuestions);
+    startQuiz();
+  });
+}
 
-  quizQuestions =
-    countValue === "all"
-      ? shuffled
-      : shuffled.slice(0, parseInt(countValue, 10));
+// -----------------------
+// Unseen pool helpers
+// -----------------------
+function getUnseenPoolForCategory(category) {
+  // Re-hydrate latest
+  seenStats = loadJSON("seenStats", {});
+  return allQuestions.filter(q => {
+    if (q.category !== category) return false;
+    const id = getQuestionId(q);
+    return !(seenStats[category] && seenStats[category][id] === true);
+  });
+}
 
-  startQuiz();
-});
-
-// =======================
-// Retry failed questions
-// =======================
-
-retryFailedBtn.addEventListener("click", () => {
-  if (failedQuestions.length === 0) return;
-
-  quizQuestions = [...failedQuestions].sort(() => Math.random() - 0.5);
-  startQuiz();
-});
-
-// =======================
-// Category mode setup
-// =======================
-
-categorySelect.addEventListener("change", () => {
-  const cat = categorySelect.value;
-  startCategoryBtn.disabled = true;
-
-  if (!cat) return;
+// -----------------------
+// Category: slider section (All Questions by Category)
+// -----------------------
+function updateCategoryUI(cat) {
+  if (!cat) {
+    if (startCategoryBtn) startCategoryBtn.disabled = true;
+    return;
+  }
 
   const total = allQuestions.filter(q => q.category === cat).length;
 
-  categorySlider.max = total;
-  categorySlider.value = total;
+  if (categorySlider) {
+    categorySlider.max = total;
+    categorySlider.value = total;
+  }
+  if (categoryCountLabel) categoryCountLabel.textContent = total;
+  if (categoryMaxLabel) categoryMaxLabel.textContent = total;
+  if (startCategoryBtn) startCategoryBtn.disabled = false;
+}
 
-  categoryCountLabel.textContent = total;
-  categoryMaxLabel.textContent = total;
+if (categorySelect) {
+  categorySelect.addEventListener("change", () => {
+    updateCategoryUI(categorySelect.value);
+  });
+}
 
-  startCategoryBtn.disabled = false;
-});
+if (categorySlider) {
+  categorySlider.addEventListener("input", () => {
+    if (categoryCountLabel) categoryCountLabel.textContent = categorySlider.value;
+  });
+}
 
-categorySlider.addEventListener("input", () => {
-  categoryCountLabel.textContent = categorySlider.value;
-});
+// -----------------------
+// Category: Start Category Quiz (uses slider)
+// -----------------------
+if (startCategoryBtn) {
+  startCategoryBtn.addEventListener("click", () => {
+    const cat = categorySelect ? categorySelect.value : "";
+    const count = categorySlider ? parseInt(categorySlider.value, 10) : 0;
+    if (!cat || !count) return;
 
-// =======================
-// Start category quiz
-// =======================
+    const pool = allQuestions.filter(q => q.category === cat);
+    quizQuestions = shuffle(pool).slice(0, count);
 
-startCategoryBtn.addEventListener("click", () => {
-  const cat = categorySelect.value;
-  const count = parseInt(categorySlider.value, 10);
+    startQuiz();
+  });
+}
 
-  if (!cat || count === 0) return;
+// -----------------------
+// Unseen section: enable/disable button on selection
+// -----------------------
+function updateUnseenSectionUI() {
+  if (!practiceUnseenCategoryBtn) return;
 
-  const pool = allQuestions.filter(q => q.category === cat);
-  quizQuestions = pool.sort(() => Math.random() - 0.5).slice(0, count);
+  const cat = unseenCategorySelect ? unseenCategorySelect.value : "";
+  if (!cat) {
+    practiceUnseenCategoryBtn.disabled = true;
+    practiceUnseenCategoryBtn.textContent = "Practice Unseen";
+    return;
+  }
 
-  startQuiz();
-});
+  const unseenPool = getUnseenPoolForCategory(cat);
+  practiceUnseenCategoryBtn.disabled = unseenPool.length === 0;
 
-// =======================
+  // Optional: count in button text
+  practiceUnseenCategoryBtn.textContent =
+    unseenPool.length === 0 ? "Practice Unseen" : `Practice Unseen (${unseenPool.length})`;
+}
+
+if (unseenCategorySelect) {
+  unseenCategorySelect.addEventListener("change", updateUnseenSectionUI);
+}
+
+// -----------------------
+// Unseen section: Practice Unseen (This Category) — NO slider
+// -----------------------
+if (practiceUnseenCategoryBtn) {
+  practiceUnseenCategoryBtn.addEventListener("click", () => {
+    const cat = unseenCategorySelect ? unseenCategorySelect.value : "";
+    if (!cat) return;
+
+    const unseenPool = getUnseenPoolForCategory(cat);
+    if (unseenPool.length === 0) {
+      alert("No unseen questions left in this category.");
+      updateUnseenSectionUI();
+      return;
+    }
+
+    // Take ALL unseen for the category (no slider in this section)
+    quizQuestions = shuffle(unseenPool);
+    startQuiz();
+  });
+}
+
+// -----------------------
 // Quiz flow
-// =======================
-
+// -----------------------
 function startQuiz() {
   currentIndex = 0;
   score = 0;
 
-  startScreen.classList.add("hidden");
-  performanceScreen.classList.add("hidden");
-  scoreScreen.classList.add("hidden");
-  quiz.classList.remove("hidden");
+  if (startScreen) startScreen.classList.add("hidden");
+  if (performanceScreen) performanceScreen.classList.add("hidden");
+  if (scoreScreen) scoreScreen.classList.add("hidden");
+  if (quiz) quiz.classList.remove("hidden");
 
-  homeBtn.classList.remove("hidden");
+  if (homeBtn) homeBtn.classList.remove("hidden");
 
   showQuestion();
+}
+
+function markSeen(q) {
+  const cat = q.category || "Uncategorised";
+  const id = getQuestionId(q);
+
+  seenStats = loadJSON("seenStats", {});
+  if (!seenStats[cat]) seenStats[cat] = {};
+
+  if (seenStats[cat][id] !== true) {
+    seenStats[cat][id] = true;
+    saveJSON("seenStats", seenStats);
+  }
 }
 
 function showQuestion() {
   const q = quizQuestions[currentIndex];
   if (!q) return finishQuiz();
 
-  progressFill.style.width =
-    `${((currentIndex + 1) / quizQuestions.length) * 100}%`;
+  // Mark as seen immediately on display
+  markSeen(q);
 
-  // Next is always visible, but disabled until an answer is selected
-  nextBtn.classList.remove("hidden");
-  nextBtn.disabled = true;
-  nextBtn.textContent =
-    currentIndex < quizQuestions.length - 1 ? "Next" : "Finish";
-
-  // Reset UI for new question
-  optionsDiv.innerHTML = "";
-  questionText.textContent = q.question;
-  categoryLabel.textContent = q.category;
-  progress.textContent =
-    `Question ${currentIndex + 1} of ${quizQuestions.length}`;
-
-  // Render options
-  q.options.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.addEventListener("click", () => selectAnswer(btn, idx));
-    optionsDiv.appendChild(btn);
-  });
-}
-
-function selectAnswer(button, index) {
-  const q = quizQuestions[currentIndex];
-  const buttons = optionsDiv.querySelectorAll("button");
-
-  // Lock answers + reveal correct
-  buttons.forEach((btn, idx) => {
-    btn.disabled = true;
-    if (idx === q.correctIndex) btn.classList.add("correct");
-  });
-
-  const cat = q.category;
-
-  if (!categoryStats[cat]) {
-    categoryStats[cat] = { attempts: 0, correct: 0 };
+  // Progress
+  if (progressFill) {
+    progressFill.style.width = `${((currentIndex + 1) / quizQuestions.length) * 100}%`;
   }
 
-  categoryStats[cat].attempts++;
+  if (nextBtn) {
+    nextBtn.disabled = true;
+    nextBtn.textContent = currentIndex < quizQuestions.length - 1 ? "Next" : "Finish";
+  }
 
-  if (index === q.correctIndex) {
-    categoryStats[cat].correct++;
+  // Reset UI
+  if (optionsDiv) optionsDiv.innerHTML = "";
+  if (questionText) questionText.textContent = q.question || "";
+  if (categoryLabel) categoryLabel.textContent = q.category || "";
+  if (progress) progress.textContent = `Question ${currentIndex + 1} of ${quizQuestions.length}`;
+
+  // Build + shuffle options while preserving correct answer identity
+  currentOptionOrder = (q.options || []).map((text, idx) => ({
+    text,
+    isCorrect: idx === q.correctIndex
+  }));
+  currentOptionOrder = shuffle(currentOptionOrder);
+
+  currentOptionOrder.forEach(optObj => {
+    const btn = document.createElement("button");
+    btn.textContent = optObj.text;
+    btn.dataset.correct = optObj.isCorrect ? "1" : "0";
+    btn.addEventListener("click", () => selectAnswer(btn));
+    optionsDiv.appendChild(btn);
+  });
+
+  // Keep unseen section button state accurate while user progresses
+  updateUnseenSectionUI();
+}
+
+function selectAnswer(clickedBtn) {
+  const q = quizQuestions[currentIndex];
+  const buttons = optionsDiv ? optionsDiv.querySelectorAll("button") : [];
+
+  // Lock answers + reveal correct
+  buttons.forEach(btn => {
+    btn.disabled = true;
+    if (btn.dataset.correct === "1") btn.classList.add("correct");
+  });
+
+  // Re-hydrate latest storage (prevents stale state bugs)
+  performanceStats = loadJSON("performanceStats", {});
+  failedQuestions = loadJSON("failedQuestions", []);
+
+  const cat = q.category || "Uncategorised";
+  const id = getQuestionId(q);
+
+  if (!performanceStats[cat]) performanceStats[cat] = {};
+  if (!performanceStats[cat][id]) performanceStats[cat][id] = { correct: false };
+
+  const isCorrect = clickedBtn && clickedBtn.dataset.correct === "1";
+
+  if (isCorrect) {
+    // Mastery: once correct, stays correct
+    performanceStats[cat][id].correct = true;
     score++;
 
     // Remove from failed list
-    failedQuestions = failedQuestions.filter(
-      fq => fq.question !== q.question
-    );
+    failedQuestions = failedQuestions.filter(fq => getQuestionId(fq) !== id);
   } else {
-    button.classList.add("incorrect");
+    if (clickedBtn) clickedBtn.classList.add("incorrect");
 
     // Add to failed list if not already there
-    if (!failedQuestions.find(fq => fq.question === q.question)) {
+    if (!failedQuestions.find(fq => getQuestionId(fq) === id)) {
       failedQuestions.push(q);
     }
   }
 
-  localStorage.setItem("categoryStats", JSON.stringify(categoryStats));
-  localStorage.setItem("failedQuestions", JSON.stringify(failedQuestions));
+  saveJSON("performanceStats", performanceStats);
+  saveJSON("failedQuestions", failedQuestions);
 
-  retryFailedBtn.disabled = failedQuestions.length === 0;
+  if (retryFailedBtn) retryFailedBtn.disabled = failedQuestions.length === 0;
+  if (nextBtn) nextBtn.disabled = false;
 
-  // Enable Next immediately (no layout jump / no “appearing” animation)
-  nextBtn.disabled = false;
+  // Keep unseen section button state accurate
+  updateUnseenSectionUI();
 }
 
-nextBtn.addEventListener("click", () => {
-  currentIndex < quizQuestions.length - 1
-    ? (currentIndex++, showQuestion())
-    : finishQuiz();
-});
+if (nextBtn) {
+  nextBtn.addEventListener("click", () => {
+    if (currentIndex < quizQuestions.length - 1) {
+      currentIndex++;
+      showQuestion();
+    } else {
+      finishQuiz();
+    }
+  });
+}
 
 function finishQuiz() {
-  quiz.classList.add("hidden");
-  scoreScreen.classList.remove("hidden");
+  if (quiz) quiz.classList.add("hidden");
+  if (scoreScreen) scoreScreen.classList.remove("hidden");
 
   const total = quizQuestions.length || 0;
   const pct = total ? Math.round((score / total) * 100) : 0;
 
-  // Copy + vibe based on pass mark (75%)
-  const tier = pct >= 75 ? "pass" : pct >= 60 ? "near" : "fail";
+  const tier = pct === 100 ? "perfect" : pct >= 75 ? "pass" : pct >= 60 ? "near" : "fail";
 
-  // Clear previous tier classes
-  scoreScreen.classList.remove("score-pass", "score-near", "score-fail");
+    // Apply tier styling (restores score screen outline + meter colour)
+  if (scoreScreen) {
+  scoreScreen.classList.remove("score-perfect", "score-pass", "score-near", "score-fail");
   scoreScreen.classList.add(
-    tier === "pass" ? "score-pass" : tier === "near" ? "score-near" : "score-fail"
+    tier === "perfect" ? "score-perfect" :
+    tier === "pass" ? "score-pass" :
+    tier === "near" ? "score-near" :
+    "score-fail"
   );
-
-  if (finalScore) {
-    finalScore.textContent = `You scored ${score} out of ${total}`;
-  }
-  if (scorePercent) {
-    scorePercent.textContent = `${pct}%`;
-  }
-  if (scoreMeterFill) {
-    scoreMeterFill.style.width = `${pct}%`;
-  }
-
-  if (tier === "pass") {
-    if (resultTitle) resultTitle.textContent = "Well done — you passed!";
-    if (resultMessage)
-      resultMessage.textContent = "Strong result. Keep it up and aim for consistency across categories.";
-    if (resultEmoji) resultEmoji.textContent = "🎉";
-
-    // Small confetti burst for a pass
-    launchConfetti();
-  } else if (tier === "near") {
-    if (resultTitle) resultTitle.textContent = "Almost there";
-    if (resultMessage)
-      resultMessage.textContent = "You’re close to the 75% pass mark. Have another run — you’ve got this.";
-    if (resultEmoji) resultEmoji.textContent = "⚡";
-  } else {
-    if (resultTitle) resultTitle.textContent = "Let’s go again";
-    if (resultMessage)
-      resultMessage.textContent = "No stress — practice a few weak areas and try again. Progress beats perfection.";
-    if (resultEmoji) resultEmoji.textContent = "💪";
-  }
 }
 
-// =======================
-// Confetti (lightweight, no libraries)
-// =======================
 
+
+  if (finalScore) finalScore.textContent = `You scored ${score} out of ${total}`;
+  if (scorePercent) scorePercent.textContent = `${pct}%`;
+  if (scoreMeterFill) scoreMeterFill.style.width = `${pct}%`;
+
+  if (tier === "perfect") {
+  if (resultTitle) resultTitle.textContent = "Perfect — 100%!";
+  if (resultMessage) resultMessage.textContent = "Category mastery just got easier. Keep going.";
+  if (resultEmoji) resultEmoji.textContent = "🏆";
+  launchConfetti();
+} else if (tier === "pass") {
+  if (resultTitle) resultTitle.textContent = "Well done — you passed!";
+  if (resultMessage) resultMessage.textContent = "Strong result. Push for 100% next run.";
+  if (resultEmoji) resultEmoji.textContent = "✅";
+} else if (tier === "near") {
+  if (resultTitle) resultTitle.textContent = "Almost there";
+  if (resultMessage) resultMessage.textContent = "Close to 75%. Retry failed and aim for full mastery.";
+  if (resultEmoji) resultEmoji.textContent = "⚡";
+} else {
+  if (resultTitle) resultTitle.textContent = "Let’s go again";
+  if (resultMessage) resultMessage.textContent = "Practice weak areas and try again.";
+  if (resultEmoji) resultEmoji.textContent = "💪";
+}
+
+}
+
+// -----------------------
+// Confetti (lightweight)
+// -----------------------
 function launchConfetti() {
-  if (!confetti || !scoreScreen) return;
+  if (!confetti) return;
 
-  // Clear any existing pieces
   confetti.innerHTML = "";
 
-  const colors = [
-    "var(--accent)",
-    "var(--correct)",
-    "#facc15",
-    "rgba(255,255,255,0.85)",
-  ];
-
+  const colors = ["var(--accent)", "var(--correct)", "#facc15", "rgba(255,255,255,0.85)"];
   const pieceCount = 26;
 
   for (let i = 0; i < pieceCount; i++) {
@@ -325,7 +485,7 @@ function launchConfetti() {
     const size = 6 + Math.random() * 6;
     const duration = 700 + Math.random() * 700;
     const delay = Math.random() * 120;
-    const dx = (Math.random() * 2 - 1) * 80; // sideways drift
+    const dx = (Math.random() * 2 - 1) * 80;
 
     piece.style.left = `${left}%`;
     piece.style.width = `${size}px`;
@@ -338,145 +498,185 @@ function launchConfetti() {
     confetti.appendChild(piece);
   }
 
-  // Cleanup after animation finishes
   window.setTimeout(() => {
     if (confetti) confetti.innerHTML = "";
   }, 1600);
 }
 
-// =======================
+// -----------------------
 // Performance screen
-// =======================
-
-// Reset performance stats (keeps failed question list)
+// -----------------------
 if (resetPerformanceBtn) {
   resetPerformanceBtn.addEventListener("click", () => {
-    const ok = confirm(
-      "Reset category performance stats? This will clear your category performance percentages. Your failed-question list will be kept."
-    );
+    const ok = confirm("Reset mastery + seen stats? (Failed-question list is kept.)");
     if (!ok) return;
 
-    categoryStats = {};
-    localStorage.removeItem("categoryStats");
+    performanceStats = {};
+    seenStats = {};
+
+    localStorage.removeItem("performanceStats");
+    localStorage.removeItem("seenStats");
+
+    renderPerformance();
+    updateUnseenSectionUI();
+  });
+}
+
+if (performanceBtn) {
+  performanceBtn.addEventListener("click", () => {
+    performanceStats = loadJSON("performanceStats", {});
+    seenStats = loadJSON("seenStats", {});
+
+    if (startScreen) startScreen.classList.add("hidden");
+    if (quiz) quiz.classList.add("hidden");
+    if (scoreScreen) scoreScreen.classList.add("hidden");
+
+    if (performanceScreen) performanceScreen.classList.remove("hidden");
+    if (homeBtn) homeBtn.classList.remove("hidden");
+
     renderPerformance();
   });
 }
 
-performanceBtn.addEventListener("click", () => {
-  startScreen.classList.add("hidden");
-  quiz.classList.add("hidden");
-  scoreScreen.classList.add("hidden");
-
-  performanceScreen.classList.remove("hidden");
-  homeBtn.classList.remove("hidden");
-
-  renderPerformance();
-});
-
 function renderPerformance() {
+  if (!performanceList) return;
+
+  performanceStats = loadJSON("performanceStats", {});
   performanceList.innerHTML = "";
 
-  const entries = Object.entries(categoryStats);
-
-  // Summary
-  if (entries.length === 0) {
+  if (!Array.isArray(allQuestions) || allQuestions.length === 0) {
     if (performanceSummary) {
       performanceSummary.classList.add("hidden");
       performanceSummary.innerHTML = "";
     }
-    performanceList.innerHTML =
-      `<p class="muted">No data yet. Complete a quiz to see performance.</p>`;
+    performanceList.innerHTML = `<p class="muted">Loading questions…</p>`;
     return;
   }
 
-  const totals = entries.reduce(
-    (acc, [, s]) => {
-      acc.attempts += s.attempts || 0;
-      acc.correct += s.correct || 0;
-      return acc;
-    },
-    { attempts: 0, correct: 0 }
-  );
+  const categories = [...new Set(allQuestions.map(q => q.category))].sort();
 
-  const overallPct = totals.attempts
-    ? Math.round((totals.correct / totals.attempts) * 100)
-    : 0;
+  // Totals per category
+  const totalByCategory = {};
+  for (const q of allQuestions) {
+    const cat = q.category || "Uncategorised";
+    totalByCategory[cat] = (totalByCategory[cat] || 0) + 1;
+  }
+
+  // Overall
+  let overallTotal = 0;
+  let overallMastered = 0;
+
+  for (const cat of categories) {
+    const total = totalByCategory[cat] || 0;
+    const mastered = Object.values(performanceStats[cat] || {}).filter(v => v && v.correct).length;
+
+    overallTotal += total;
+    overallMastered += Math.min(mastered, total);
+  }
+
+  const overallPct = overallTotal ? Math.round((overallMastered / overallTotal) * 100) : 0;
 
   if (performanceSummary) {
     performanceSummary.classList.remove("hidden");
     performanceSummary.innerHTML = `
-    <div class="summary-row">
-      <div>
-        <div class="summary-title">Overall</div>
-        <div class="summary-meta">${totals.correct}/${totals.attempts} correct</div>
+      <div class="summary-row">
+        <div>
+          <div class="summary-title">Overall</div>
+          <div class="summary-meta">${overallMastered}/${overallTotal} mastered</div>
+        </div>
+        <div class="summary-score">${overallPct}%</div>
       </div>
-      <div class="summary-score">${overallPct}%</div>
-    </div>
-    <div class="performance-bar summary-bar">
-      <div class="performance-fill ${overallPct >= 80 ? "pass" : overallPct >= 60 ? "borderline" : "fail"}"
-           style="width: ${overallPct}%"></div>
-    </div>
-  `;
+      <div class="performance-bar summary-bar">
+        <div class="performance-fill ${
+          overallPct >= 80 ? "pass" : overallPct >= 60 ? "borderline" : "fail"
+        }" style="width: ${overallPct}%"></div>
+      </div>
+    `;
   }
 
-  // Per-category rows
-  entries
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .forEach(([category, stats]) => {
-      const percent = stats.attempts
-        ? Math.round((stats.correct / stats.attempts) * 100)
-        : 0;
+  // Build category rows
+  const rows = categories.map(cat => {
+    const total = totalByCategory[cat] || 0;
+    const masteredRaw = Object.values(performanceStats[cat] || {}).filter(v => v && v.correct).length;
+    const mastered = Math.min(masteredRaw, total);
 
-      let status = "fail";
-      if (percent >= 80) status = "pass";
-      else if (percent >= 60) status = "borderline";
+    const pct = total ? Math.round((mastered / total) * 100) : 0;
+    const complete = total > 0 && mastered === total;
 
-      const item = document.createElement("div");
-      item.className = "performance-item";
+    return { cat, total, mastered, pct, complete };
+  });
 
-      item.innerHTML = `
-        <div class="performance-row">
-          <div class="performance-left">
-            <span class="category-pill">${category}</span>
-            <div class="performance-meta muted">${stats.correct}/${stats.attempts} correct</div>
+  // Sort: completed first, then higher % mastery, then name
+  rows.sort((a, b) => {
+    if (a.complete !== b.complete) return a.complete ? -1 : 1;
+    if (a.pct !== b.pct) return b.pct - a.pct;
+    return a.cat.localeCompare(b.cat);
+  });
+
+  rows.forEach(r => {
+    let status = "fail";
+    if (r.pct >= 80) status = "pass";
+    else if (r.pct >= 60) status = "borderline";
+
+    const item = document.createElement("div");
+    item.className = "performance-item";
+    if (r.complete) item.classList.add("complete");
+
+    const completeBadge = r.complete ? `<span class="complete-badge">✓ Complete</span>` : "";
+
+    item.innerHTML = `
+      <div class="performance-row">
+        <div class="performance-left">
+          <span class="category-pill ${r.complete ? "complete-pill" : ""}">
+            ${r.cat}${r.complete ? " ✓" : ""}
+          </span>
+          <div class="performance-meta muted">
+            ${r.mastered}/${r.total} mastered
+            ${completeBadge}
           </div>
-          <div class="performance-score">${percent}%</div>
         </div>
-        <div class="performance-bar">
-          <div class="performance-fill ${status}"
-               style="width: ${percent}%"></div>
-        </div>
-      `;
+        <div class="performance-score">${r.pct}%</div>
+      </div>
+      <div class="performance-bar">
+        <div class="performance-fill ${status}" style="width: ${r.pct}%"></div>
+      </div>
+    `;
 
-      performanceList.appendChild(item);
-    });
+    performanceList.appendChild(item);
+  });
 }
 
-// =======================
-// Reset / Home
-// =======================
-
+// -----------------------
+// Home button
+// -----------------------
 function resetApp() {
   currentIndex = 0;
   score = 0;
   quizQuestions = [];
 
-  quiz.classList.add("hidden");
-  scoreScreen.classList.add("hidden");
-  performanceScreen.classList.add("hidden");
-  startScreen.classList.remove("hidden");
-
-  // Clean up score UI
-  scoreScreen.classList.remove("score-pass", "score-near", "score-fail");
+  if (quiz) quiz.classList.add("hidden");
+  if (scoreScreen) scoreScreen.classList.add("hidden");
+  if (performanceScreen) performanceScreen.classList.add("hidden");
+  if (startScreen) startScreen.classList.remove("hidden");
+  if (scoreScreen) scoreScreen.classList.remove("score-perfect", "score-pass", "score-near", "score-fail");
   if (scoreMeterFill) scoreMeterFill.style.width = "0%";
   if (scorePercent) scorePercent.textContent = "";
   if (resultMessage) resultMessage.textContent = "";
   if (confetti) confetti.innerHTML = "";
+  if (progressFill) progressFill.style.width = "0%";
 
-  homeBtn.classList.add("hidden");
-  progressFill.style.width = "0%";
+  if (homeBtn) homeBtn.classList.add("hidden");
 
-  retryFailedBtn.disabled = failedQuestions.length === 0;
+  failedQuestions = loadJSON("failedQuestions", []);
+  if (retryFailedBtn) retryFailedBtn.disabled = failedQuestions.length === 0;
+
+  if (categorySelect && categorySelect.value) updateCategoryUI(categorySelect.value);
+
+  // Ensure unseen button state is correct on return home
+  updateUnseenSectionUI();
 }
 
-homeBtn.addEventListener("click", resetApp);
+if (homeBtn) homeBtn.addEventListener("click", resetApp);
+
+// Expose resetApp for inline HTML button usage (your score screen uses onclick="resetApp()")
+window.resetApp = resetApp;
