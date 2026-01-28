@@ -62,6 +62,7 @@ let currentOptionOrder = []; // array of { text: string, isCorrect: boolean }
 // -----------------------
 // DOM
 // -----------------------
+
 const startScreen = document.getElementById("startScreen");
 const quiz = document.getElementById("quiz");
 const scoreScreen = document.getElementById("scoreScreen");
@@ -71,6 +72,7 @@ const homeBtn = document.getElementById("homeBtn");
 const performanceBtn = document.getElementById("performanceBtn");
 
 const questionText = document.getElementById("questionText");
+const questionIdLabel = document.getElementById("questionIdLabel");
 const optionsDiv = document.getElementById("options");
 const nextBtn = document.getElementById("nextBtn");
 const progress = document.getElementById("progress");
@@ -341,6 +343,11 @@ function showQuestion() {
   if (categoryLabel) categoryLabel.textContent = q.category || "";
   if (progress) progress.textContent = `Question ${currentIndex + 1} of ${quizQuestions.length}`;
 
+if (questionIdLabel) {
+  questionIdLabel.textContent = `${getQuestionId(q)}`;
+}
+
+
   // Build + shuffle options while preserving correct answer identity
   currentOptionOrder = (q.options || []).map((text, idx) => ({
     text,
@@ -362,6 +369,7 @@ function showQuestion() {
 
 function selectAnswer(clickedBtn) {
   const q = quizQuestions[currentIndex];
+  
   const buttons = optionsDiv ? optionsDiv.querySelectorAll("button") : [];
 
   // Lock answers + reveal correct

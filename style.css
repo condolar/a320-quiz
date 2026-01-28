@@ -770,3 +770,12 @@ hr {
   font-weight: 650;
   font-size: 12px;
 }
+
+.question-id {
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: #888;
+  opacity: 0.5;
+  user-select: text;
+}
+

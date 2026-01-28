@@ -5309,7 +5309,7 @@
   {
     "reference": "APU-017",
     "category": "APU",
-    "question": "The basic element of the APU is a single shaft gas turbine which delivers power for driving the accessory gearbox (electrical generator) and produces bleed air (engine starting and pneumatic supply)",
+    "question": "The basic element of the APU is a single shaft gas turbine which delivers ___ power for driving the accessory gearbox (electrical generator) and produces bleed air (engine starting and pneumatic supply)",
     "options": [
       "2nd stage compressor",
       "3rd stage turbine",
@@ -5619,7 +5619,7 @@
   {
     "reference": "ENG-010",
     "category": "ENGINES",
-    "question": "If an A/THR disconnect switch is pushed and held for more than seconds; the A/THR system is disconnected for the remainder of the flight; including the .",
+    "question": "If an A/THR disconnect switch is pushed and held for more than ___ seconds; the A/THR system is disconnected for the remainder of the flight; including the ___.",
     "options": [
       "10 Seconds - Alpha floor Protection",
       "12 Seconds - Alpha floor Protection",
@@ -6019,7 +6019,7 @@
   {
     "reference": "ENG-045",
     "category": "ENGINES",
-    "question": "For reverser actuation, the left engine uses hydraulic system pressure and the right engine uses hydraulic system pressure.",
+    "question": "For reverser actuation, the left engine uses ___ hydraulic system pressure and the right engine uses ___ hydraulic system pressure.",
     "options": [
       "Green - Yellow.",
       "Yellow - Blue.",
@@ -7508,7 +7508,7 @@
   {
     "reference": "COMM-019",
     "category": "COMMUNICATION",
-    "question": "The service interphone has interphone jacks and an OVRD switch located on the overhead panel.",
+    "question": "The service interphone has ___ interphone jacks and an OVRD switch located on the overhead panel.",
     "options": [
       "Five",
       "Seven",
